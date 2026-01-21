@@ -1,0 +1,9 @@
+# Archivos de migración (no necesarios en producción)
+migrate_to_vps.sql
+preguntas_rows.csv
+
+# Documentación interna
+sin intermediarios.md
+
+# Mac files
+.DS_Store
