@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>SIN INTERMEDIARIOS - Noticias Caracol</title>
+    <meta name="description" content="Formato televisivo interactivo donde candidatos presidenciales responden preguntas ciudadanas en tiempo real.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <div class="logo-container">
+                <img src="diseñoux.jpg" alt="Noticias Caracol" class="logo">
+            </div>
+            <h1 class="title">SIN INTERMEDIARIOS</h1>
+            <p class="subtitle">Cuando la pregunta la hace el país</p>
+            <button id="btn-comenzar" class="btn-primary pulse">
+                <span class="btn-icon">▶</span>
+                COMENZAR
+            </button>
+            <div class="questions-counter">
+                <span class="counter-label">Preguntas disponibles:</span>
+                <span id="questions-count" class="counter-value">--</span>
+            </div>
+        </div>
+
+        <!-- Slot Machine Animation Screen -->
+        <div id="animation-screen" class="screen">
+            <div class="animation-container">
+                <h2 class="animation-title">Seleccionando pregunta...</h2>
+                <div class="slot-machine">
+                    <div class="slot-window">
+                        <div id="slot-reel" class="slot-reel"></div>
+                    </div>
+                </div>
+                <div class="loading-dots">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question Display Screen -->
+        <div id="question-screen" class="screen">
+            <div class="question-header">
+                <div class="user-info">
+                    <span id="social-icon" class="social-icon"></span>
+                    <span id="username" class="username">@usuario</span>
+                </div>
+                <div id="topic-badge" class="topic-badge">Economía</div>
+            </div>
+            
+            <div class="question-container">
+                <p id="question-text" class="question-text">
+                    ¿Cómo piensa reducir la inflación sin afectar el empleo en el país?
+                </p>
+            </div>
+            
+            <div class="timer-container">
+                <div class="timer-bar-bg">
+                    <div id="timer-bar" class="timer-bar"></div>
+                </div>
+                <div class="timer-display">
+                    <span id="timer-value" class="timer-value">60</span>
+                    <span class="timer-label">segundos</span>
+                </div>
+            </div>
+            
+            <div class="question-footer">
+                <div class="question-progress">
+                    Pregunta <span id="current-question">1</span> de <span id="total-questions">10</span>
+                </div>
+                <button id="btn-siguiente" class="btn-secondary">
+                    SIGUIENTE PREGUNTA
+                    <span class="btn-arrow">→</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Session Complete Screen -->
+        <div id="complete-screen" class="screen">
+            <div class="complete-container">
+                <div class="complete-icon">✓</div>
+                <h2 class="complete-title">Sesión Completada</h2>
+                <p class="complete-message">Se han respondido todas las preguntas de esta sesión.</p>
+                <button id="btn-reiniciar" class="btn-primary">
+                    NUEVA SESIÓN
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
