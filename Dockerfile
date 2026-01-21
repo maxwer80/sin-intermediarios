@@ -6,6 +6,7 @@ COPY index.html /usr/share/nginx/html/
 COPY app.js /usr/share/nginx/html/
 COPY data.js /usr/share/nginx/html/
 COPY styles.css /usr/share/nginx/html/
+COPY "diseñoux.jpg" /usr/share/nginx/html/
 
 # Exponer puerto 80
 EXPOSE 80
