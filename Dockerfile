@@ -7,9 +7,6 @@ COPY app.js /usr/share/nginx/html/
 COPY data.js /usr/share/nginx/html/
 COPY styles.css /usr/share/nginx/html/
 
-# Copiar assets si existen
-COPY *.jpg /usr/share/nginx/html/ 2>/dev/null || true
-
 # Exponer puerto 80
 EXPOSE 80
 
