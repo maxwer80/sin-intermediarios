@@ -13,7 +13,8 @@ const supabase = {
     async fetchQuestions() {
         try {
             // Usar ruta relativa para que Nginx la procese
-            const response = await fetch(`${SUPABASE_URL}/rest/v1/preguntas?select=*&estado=eq.aprobada`, {
+            // Incluimos tanto 'aprobada' como 'usada' para que el pool de preguntas sea infinito/reciclable
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/preguntas?select=*&estado=in.(aprobada,usada)`, {
                 headers: {
                     'apikey': SUPABASE_ANON_KEY,
                     'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
