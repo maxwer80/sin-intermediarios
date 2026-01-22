@@ -3,8 +3,9 @@
  * Gestión de Preguntas
  */
 
-// Supabase Configuration - Self-hosted VPS
-const SUPABASE_URL = 'http://antigravity-supabase-7b4026-72-60-173-156.traefik.me';
+// Supabase Configuration - Proxy Inverso (Nginx)
+// Al dejar vacío, las peticiones van a /rest/v1 en el mismo dominio
+const SUPABASE_URL = '';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NjkwMDkxMjEsImV4cCI6MTg5MzQ1NjAwMCwicm9sZSI6ImFub24iLCJpc3MiOiJzdXBhYmFzZSJ9.QLLj2oEnrtyJHT7mnwP3TZtvkhnEqspaz5VMQDhA1aE';
 
 // State
@@ -18,8 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // API Functions
 async function fetchQuestions(filter = '') {
     try {
+        // Usar ruta relativa. Nginx redirige internamente a Supabase.
         // Ordenar por created_at descendente (más recientes primero)
-        let url = `${SUPABASE_URL}/rest/v1/preguntas?select=*&order=created_at.desc.nullslast`;
+        let url = `/rest/v1/preguntas?select=*&order=created_at.desc.nullslast`;
         // let url = `${SUPABASE_URL}/rest/v1/preguntas?select=*`;
         if (filter) {
             url += `&estado=eq.${filter}`;
@@ -44,7 +46,7 @@ async function fetchQuestions(filter = '') {
 
 async function createQuestion(data) {
     try {
-        const response = await fetch(`${SUPABASE_URL}/rest/v1/preguntas`, {
+        const response = await fetch(`/rest/v1/preguntas`, {
             method: 'POST',
             headers: {
                 'apikey': SUPABASE_ANON_KEY,
@@ -66,7 +68,7 @@ async function createQuestion(data) {
 
 async function updateQuestion(id, data) {
     try {
-        const response = await fetch(`${SUPABASE_URL}/rest/v1/preguntas?id=eq.${id}`, {
+        const response = await fetch(`/rest/v1/preguntas?id=eq.${id}`, {
             method: 'PATCH',
             headers: {
                 'apikey': SUPABASE_ANON_KEY,
@@ -88,7 +90,7 @@ async function updateQuestion(id, data) {
 
 async function deleteQuestion(id) {
     try {
-        const response = await fetch(`${SUPABASE_URL}/rest/v1/preguntas?id=eq.${id}`, {
+        const response = await fetch(`/rest/v1/preguntas?id=eq.${id}`, {
             method: 'DELETE',
             headers: {
                 'apikey': SUPABASE_ANON_KEY,

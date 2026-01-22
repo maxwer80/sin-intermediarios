@@ -4,18 +4,19 @@
  */
 
 // Supabase Configuration - Self-hosted VPS
-const SUPABASE_URL = 'http://antigravity-supabase-7b4026-72-60-173-156.traefik.me';
+// Supabase Configuration - Proxy Inverso
+const SUPABASE_URL = ''; // Se usa ruta relativa /rest/v1
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NjkwMDkxMjEsImV4cCI6MTg5MzQ1NjAwMCwicm9sZSI6ImFub24iLCJpc3MiOiJzdXBhYmFzZSJ9.QLLj2oEnrtyJHT7mnwP3TZtvkhnEqspaz5VMQDhA1aE';
 
 // Supabase Client (using REST API directly for simplicity)
 const supabase = {
     async fetchQuestions() {
         try {
-            const response = await fetch(`${SUPABASE_URL}/rest/v1/preguntas?estado=eq.aprobada&select=*`, {
+            // Usar ruta relativa para que Nginx la procese
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/preguntas?select=*&estado=eq.aprobada`, {
                 headers: {
                     'apikey': SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                    'Content-Type': 'application/json'
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                 }
             });
             if (!response.ok) throw new Error('Error fetching questions');
@@ -23,6 +24,23 @@ const supabase = {
         } catch (error) {
             console.error('Supabase fetch error:', error);
             return null;
+        }
+    },
+
+    async logAuditoria(accion, detalle) {
+        try {
+            await fetch(`${SUPABASE_URL}/rest/v1/auditoria`, {
+                method: 'POST',
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=minimal'
+                },
+                body: JSON.stringify({ accion, detalle })
+            });
+        } catch (error) {
+            console.error('Error logging auditoria:', error);
         }
     },
 

@@ -53,7 +53,7 @@
         <h3>1. Entorno</h3>
         <p><strong>Navegador URL:</strong> <span id="browser-url">Cargando...</span></p>
         <p><strong>Protocolo:</strong> <span id="browser-protocol">Cargando...</span></p>
-        <p><strong>Supabase URL:</strong> <code id="supabase-url">Cargando...</code></p>
+        <p><strong>Supabase Proxy:</strong> <code id="supabase-url">/rest/v1/ (Relativo)</code></p>
     </div>
 
     <div class="card">
@@ -66,7 +66,8 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'http://antigravity-supabase-7b4026-72-60-173-156.traefik.me';
+        // Usamos ruta relativa para probar el Nginx Proxy
+        const SUPABASE_URL = '';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NjkwMDkxMjEsImV4cCI6MTg5MzQ1NjAwMCwicm9sZSI6ImFub24iLCJpc3MiOiJzdXBhYmFzZSJ9.QLLj2oEnrtyJHT7mnwP3TZtvkhnEqspaz5VMQDhA1aE';
 
         document.getElementById('browser-url').textContent = window.location.href;
