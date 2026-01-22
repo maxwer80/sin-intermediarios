@@ -18,9 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // API Functions
 async function fetchQuestions(filter = '') {
     try {
-        // Revertido temporalmente: Habilitar cuando se cree la columna created_at en la BD
-        // let url = `${SUPABASE_URL}/rest/v1/preguntas?select=*&order=created_at.desc.nullslast`;
-        let url = `${SUPABASE_URL}/rest/v1/preguntas?select=*`;
+        // Ordenar por created_at descendente (más recientes primero)
+        let url = `${SUPABASE_URL}/rest/v1/preguntas?select=*&order=created_at.desc.nullslast`;
+        // let url = `${SUPABASE_URL}/rest/v1/preguntas?select=*`;
         if (filter) {
             url += `&estado=eq.${filter}`;
         }
