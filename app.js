@@ -363,9 +363,12 @@ class SinIntermediariosApp {
         this.stopTimer();
 
         // Mark current question as used in Supabase
+        // DESHABILITADO POR SOLICITUD: No quemar las preguntas en la BD
+        /*
         if (this.state.useSupabase && this.state.currentQuestion) {
             await supabase.markAsUsed(this.state.currentQuestion.id);
         }
+        */
 
         this.updateQuestionsCount();
         this.selectNextPreselectedQuestion();
