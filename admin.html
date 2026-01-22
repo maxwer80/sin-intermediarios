@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - SIN INTERMEDIARIOS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin-styles.css">
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="logo">
+                <span class="logo-icon">📋</span>
+                <h1>Panel de Administración</h1>
+            </div>
+            <p class="subtitle">SIN INTERMEDIARIOS - Gestión de Preguntas</p>
+        </header>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <span class="stat-value" id="stat-total">0</span>
+                <span class="stat-label">Total</span>
+            </div>
+            <div class="stat-card stat-approved">
+                <span class="stat-value" id="stat-approved">0</span>
+                <span class="stat-label">Aprobadas</span>
+            </div>
+            <div class="stat-card stat-pending">
+                <span class="stat-value" id="stat-pending">0</span>
+                <span class="stat-label">Pendientes</span>
+            </div>
+            <div class="stat-card stat-obligatory">
+                <span class="stat-value" id="stat-obligatory">0</span>
+                <span class="stat-label">Obligatorias</span>
+            </div>
+        </div>
+
+        <!-- Actions Bar -->
+        <div class="actions-bar">
+            <button class="btn-primary" onclick="showAddModal()">
+                ➕ Nueva Pregunta
+            </button>
+            <button class="btn-upload" onclick="showUploadModal()">
+                📄 Subir CSV
+            </button>
+            <button class="btn-secondary" onclick="loadQuestions()">
+                🔄 Actualizar
+            </button>
+            <div class="filter-group">
+                <label>Filtrar:</label>
+                <select id="filter-estado" onchange="loadQuestions()">
+                    <option value="">Todos</option>
+                    <option value="aprobada">Aprobadas</option>
+                    <option value="pendiente">Pendientes</option>
+                    <option value="usada">Usadas</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Questions Table -->
+        <div class="table-container">
+            <table class="questions-table">
+                <thead>
+                    <tr>
+                        <th class="col-obligatory">⭐</th>
+                        <th class="col-date">Fecha</th>
+                        <th class="col-question">Pregunta</th>
+                        <th class="col-user">Usuario</th>
+                        <th class="col-topic">Tema</th>
+                        <th class="col-status">Estado</th>
+                        <th class="col-actions">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="questions-tbody">
+                    <tr>
+                        <td colspan="7" class="loading-cell">Cargando preguntas...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Add/Edit Modal -->
+        <div id="modal-overlay" class="modal-overlay hidden">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2 id="modal-title">Nueva Pregunta</h2>
+                    <button class="btn-close" onclick="closeModal()">✕</button>
+                </div>
+                <form id="question-form" onsubmit="saveQuestion(event)">
+                    <input type="hidden" id="question-id">
+
+                    <div class="form-group">
+                        <label for="pregunta">Pregunta *</label>
+                        <textarea id="pregunta" required rows="3" placeholder="Escribe la pregunta aquí..."></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="usuario">Usuario</label>
+                            <input type="text" id="usuario" placeholder="@usuario" value="@ciudadano">
+                        </div>
+                        <div class="form-group">
+                            <label for="red_social">Red Social</label>
+                            <select id="red_social">
+                                <option value="X">X (Twitter)</option>
+                                <option value="Instagram">Instagram</option>
+                                <option value="Facebook">Facebook</option>
+                                <option value="TikTok">TikTok</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tema">Tema</label>
+                            <select id="tema">
+                                <option value="Economía">Economía</option>
+                                <option value="Seguridad">Seguridad</option>
+                                <option value="Salud">Salud</option>
+                                <option value="Educación">Educación</option>
+                                <option value="Medio Ambiente">Medio Ambiente</option>
+                                <option value="Justicia">Justicia</option>
+                                <option value="Infraestructura">Infraestructura</option>
+                                <option value="Política Social">Política Social</option>
+                                <option value="Otros">Otros</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="estado">Estado</label>
+                            <select id="estado">
+                                <option value="pendiente">Pendiente</option>
+                                <option value="aprobada">Aprobada</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="obligatoria">
+                            <span>⭐ Marcar como OBLIGATORIA (siempre saldrá en la ronda)</span>
+                        </label>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" onclick="closeModal()">Cancelar</button>
+                        <button type="submit" class="btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast hidden"></div>
+
+        <!-- Upload CSV Modal -->
+        <div id="upload-modal" class="modal-overlay hidden">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>📄 Subir Preguntas desde CSV</h2>
+                    <button class="btn-close" onclick="closeUploadModal()">✕</button>
+                </div>
+                <div class="upload-content">
+                    <div class="upload-instructions">
+                        <p><strong>Formato del CSV:</strong></p>
+                        <code>pregunta,usuario,red_social,tema</code>
+                        <p class="example">Ejemplo:<br>
+                            "¿Cuál es su propuesta económica?",@juan_perez,X,Economía<br>
+                            "¿Cómo mejorará la seguridad?",@maria_lopez,Instagram,Seguridad</p>
+                    </div>
+
+                    <div class="upload-zone" id="upload-zone">
+                        <input type="file" id="csv-file" accept=".csv,.txt" onchange="handleFileSelect(event)">
+                        <div class="upload-icon">📁</div>
+                        <p>Arrastra tu archivo CSV aquí o <strong>haz clic para seleccionar</strong></p>
+                        <span class="file-name" id="file-name"></span>
+                    </div>
+
+                    <div class="upload-preview hidden" id="upload-preview">
+                        <h4>Vista previa (<span id="preview-count">0</span> preguntas)</h4>
+                        <div class="preview-table-container">
+                            <table class="preview-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Pregunta</th>
+                                        <th>Usuario</th>
+                                        <th>Tema</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="preview-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" onclick="closeUploadModal()">Cancelar</button>
+                        <button type="button" class="btn-primary" id="btn-upload" onclick="uploadQuestions()" disabled>
+                            Subir Preguntas
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="admin.js"></script>
+</body>
+
+</html>

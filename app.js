@@ -64,11 +64,14 @@ class SinIntermediariosApp {
         this.state = {
             currentScreen: 'start',
             questions: [],
+            obligatoryQuestions: [], // Preguntas marcadas como obligatorias
+            selectedQuestions: [], // Las 10 preguntas para esta ronda
             usedQuestionIds: [],
             currentQuestion: null,
             currentQuestionNumber: 0,
             timerInterval: null,
-            timeRemaining: this.config.timerDuration
+            timeRemaining: this.config.timerDuration,
+            useSupabase: false
         };
 
         // DOM Elements
@@ -116,6 +119,10 @@ class SinIntermediariosApp {
             console.log('✅ Loaded', supabaseQuestions.length, 'questions from Supabase');
             this.state.questions = supabaseQuestions;
             this.state.useSupabase = true;
+
+            // Separar las preguntas obligatorias
+            this.state.obligatoryQuestions = supabaseQuestions.filter(q => q.obligatoria === true);
+            console.log('🔒 Preguntas obligatorias:', this.state.obligatoryQuestions.length);
         } else {
             // Fallback to mock data
             console.log('⚠️ Using mock data (Supabase unavailable)');
@@ -146,32 +153,58 @@ class SinIntermediariosApp {
     startSession() {
         this.state.currentQuestionNumber = 0;
         this.state.usedQuestionIds = [];
-        this.selectRandomQuestion();
+
+        // Pre-seleccionar las 10 preguntas (obligatorias + aleatorias)
+        this.preselectQuestionsWithObligatory();
+
+        // Iniciar inmediatamente con la primera pregunta
+        this.selectNextPreselectedQuestion();
     }
 
-    selectRandomQuestion() {
-        // Check if session is complete
-        if (this.state.currentQuestionNumber >= this.config.questionsPerSession) {
-            this.showScreen('complete');
-            return;
-        }
+    preselectQuestionsWithObligatory() {
+        // 1. Obtener todas las preguntas obligatorias primero
+        const obligatory = this.state.obligatoryQuestions.filter(q => q.estado === 'aprobada');
 
-        // Get available questions
-        const available = this.state.questions.filter(
-            q => !this.state.usedQuestionIds.includes(q.id)
+        // 2. Obtener preguntas NO obligatorias
+        const nonObligatory = this.state.questions.filter(
+            q => !q.obligatoria && q.estado === 'aprobada'
         );
 
-        if (available.length === 0) {
+        // 3. Mezclar las no obligatorias
+        const shuffledNonObligatory = this.shuffleArray([...nonObligatory]);
+
+        // 4. Calcular cuántas aleatorias necesitamos
+        const neededRandom = this.config.questionsPerSession - obligatory.length;
+
+        // 5. Tomar las aleatorias necesarias
+        const randomQuestions = shuffledNonObligatory.slice(0, Math.max(0, neededRandom));
+
+        // 6. Combinar: obligatorias + aleatorias, luego mezclar para que no sea obvio
+        const allSelected = [...obligatory, ...randomQuestions];
+        this.state.selectedQuestions = this.shuffleArray(allSelected).slice(0, this.config.questionsPerSession);
+
+        console.log('📋 Ronda preparada:');
+        console.log('   - Obligatorias incluidas:', obligatory.length);
+        console.log('   - Aleatorias añadidas:', randomQuestions.length);
+        console.log('   - Total seleccionadas:', this.state.selectedQuestions.length);
+    }
+
+    selectNextPreselectedQuestion() {
+        // Check if session is complete
+        if (this.state.currentQuestionNumber >= this.state.selectedQuestions.length) {
             this.showScreen('complete');
             return;
         }
+
+        // Get the next pre-selected question
+        const question = this.state.selectedQuestions[this.state.currentQuestionNumber];
 
         // Show animation screen
         this.showScreen('animation');
-        this.runSlotMachineAnimation(available);
+        this.runSlotMachineAnimation(question);
     }
 
-    runSlotMachineAnimation(availableQuestions) {
+    runSlotMachineAnimation(winningQuestion) {
         const reel = this.elements.slotReel;
         reel.innerHTML = '';
 
@@ -180,18 +213,13 @@ class SinIntermediariosApp {
 
         // Add questions multiple times for scroll effect
         for (let i = 0; i < 5; i++) {
-            availableQuestions.forEach(q => {
+            this.state.selectedQuestions.forEach(q => {
                 allItems.push(q);
             });
         }
 
         // Shuffle for randomness appearance
         const shuffled = this.shuffleArray([...allItems]);
-
-        // Select the winning question
-        const winningQuestion = availableQuestions[
-            Math.floor(Math.random() * availableQuestions.length)
-        ];
 
         // Add shuffled items to reel
         shuffled.forEach((q, index) => {
@@ -298,7 +326,7 @@ class SinIntermediariosApp {
         }
 
         this.updateQuestionsCount();
-        this.selectRandomQuestion();
+        this.selectNextPreselectedQuestion();
     }
 
     resetSession() {
@@ -306,6 +334,7 @@ class SinIntermediariosApp {
         this.state.usedQuestionIds = [];
         this.state.currentQuestionNumber = 0;
         this.state.currentQuestion = null;
+        this.state.selectedQuestions = [];
         this.updateQuestionsCount();
         this.showScreen('start');
     }
