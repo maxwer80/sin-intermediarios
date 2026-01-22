@@ -150,7 +150,9 @@ function renderTable() {
                 <span class="topic-badge">${escapeHtml(q.tema || 'Otros')}</span>
             </td>
             <td class="col-status">
-                <span class="status-badge ${q.estado}">${q.estado}</span>
+                <span class="status-badge ${q.estado === 'usada' ? 'aprobada' : q.estado}">
+                    ${q.estado === 'usada' ? 'aprobada' : q.estado}
+                </span>
             </td>
             <td class="col-actions">
                 ${q.estado === 'pendiente' ? `
