@@ -181,21 +181,21 @@ class SinIntermediariosApp {
     }
 
     preselectQuestionsWithObligatory() {
-        // 1. Obtener todas las preguntas obligatorias aprobadas
-        const allObligatory = this.state.obligatoryQuestions.filter(q => q.estado === 'aprobada');
+        // 1. Obtener todas las preguntas obligatorias (aprobadas o usadas)
+        const allObligatory = this.state.obligatoryQuestions.filter(q => ['aprobada', 'usada'].includes(q.estado));
 
         // 2. Seleccionar MÁXIMO 4 obligatorias al azar
         // Si hay más de 4, las mezclamos y tomamos 4. Si hay menos, tomamos todas.
         const shuffledObligatory = this.shuffleArray([...allObligatory]);
         const finalObligatory = shuffledObligatory.slice(0, 4);
 
-        // 3. Obtener preguntas NO obligatorias (y aprobadas)
+        // 3. Obtener preguntas NO obligatorias (aprobadas o usadas)
         // Ojo: Si una pregunta era obligatoria pero no quedó en las 'finalObligatory', 
         // ¿debería volver al pool general? 
         // Por simplificar y evitar duplicados, filtramos las que NO son obligatorias base.
         // (Las obligatorias sobrantes se descartan para esta ronda para dar variedad).
         const nonObligatory = this.state.questions.filter(
-            q => !q.obligatoria && q.estado === 'aprobada'
+            q => !q.obligatoria && ['aprobada', 'usada'].includes(q.estado)
         );
 
         // 4. Mezclar las no obligatorias
