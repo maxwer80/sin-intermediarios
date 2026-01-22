@@ -180,31 +180,43 @@ class SinIntermediariosApp {
     }
 
     preselectQuestionsWithObligatory() {
-        // 1. Obtener todas las preguntas obligatorias primero
-        const obligatory = this.state.obligatoryQuestions.filter(q => q.estado === 'aprobada');
+        // 1. Obtener todas las preguntas obligatorias aprobadas
+        const allObligatory = this.state.obligatoryQuestions.filter(q => q.estado === 'aprobada');
 
-        // 2. Obtener preguntas NO obligatorias
+        // 2. Seleccionar MÁXIMO 4 obligatorias al azar
+        // Si hay más de 4, las mezclamos y tomamos 4. Si hay menos, tomamos todas.
+        const shuffledObligatory = this.shuffleArray([...allObligatory]);
+        const finalObligatory = shuffledObligatory.slice(0, 4);
+
+        // 3. Obtener preguntas NO obligatorias (y aprobadas)
+        // Ojo: Si una pregunta era obligatoria pero no quedó en las 'finalObligatory', 
+        // ¿debería volver al pool general? 
+        // Por simplificar y evitar duplicados, filtramos las que NO son obligatorias base.
+        // (Las obligatorias sobrantes se descartan para esta ronda para dar variedad).
         const nonObligatory = this.state.questions.filter(
             q => !q.obligatoria && q.estado === 'aprobada'
         );
 
-        // 3. Mezclar las no obligatorias
+        // 4. Mezclar las no obligatorias
         const shuffledNonObligatory = this.shuffleArray([...nonObligatory]);
 
-        // 4. Calcular cuántas aleatorias necesitamos
-        const neededRandom = this.config.questionsPerSession - obligatory.length;
+        // 5. Calcular cuántas aleatorias necesitamos para llegar a 10
+        const neededRandom = this.config.questionsPerSession - finalObligatory.length;
 
-        // 5. Tomar las aleatorias necesarias
+        // 6. Tomar las aleatorias necesarias
         const randomQuestions = shuffledNonObligatory.slice(0, Math.max(0, neededRandom));
 
-        // 6. Combinar: obligatorias + aleatorias, luego mezclar para que no sea obvio
-        const allSelected = [...obligatory, ...randomQuestions];
+        // 7. Combinar: obligatorias seleccionadas + aleatorias
+        const allSelected = [...finalObligatory, ...randomQuestions];
+
+        // 8. Mezclar el resultado final para que las obligatorias no salgan siempre al principio
         this.state.selectedQuestions = this.shuffleArray(allSelected).slice(0, this.config.questionsPerSession);
 
         console.log('📋 Ronda preparada:');
-        console.log('   - Obligatorias incluidas:', obligatory.length);
+        console.log('   - Pool Obligatorias total:', allObligatory.length);
+        console.log('   - Obligatorias seleccionadas (Max 4):', finalObligatory.map(q => q.pregunta.substring(0, 20) + '...'));
         console.log('   - Aleatorias añadidas:', randomQuestions.length);
-        console.log('   - Total seleccionadas:', this.state.selectedQuestions.length);
+        console.log('   - Total ronda:', this.state.selectedQuestions.length);
     }
 
     selectNextPreselectedQuestion() {
