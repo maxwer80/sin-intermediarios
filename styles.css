@@ -33,18 +33,18 @@
     --topic-politica-social: #EC4899;
     --topic-otros: #6B7280;
 
-    /* Typography */
+    /* Typography - Fluid Scaling */
     --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --font-size-xs: 0.75rem;
     --font-size-sm: 0.875rem;
     --font-size-base: 1rem;
-    --font-size-lg: 1.125rem;
-    --font-size-xl: 1.25rem;
-    --font-size-2xl: 1.5rem;
-    --font-size-3xl: 1.875rem;
-    --font-size-4xl: 2.25rem;
-    --font-size-5xl: 3rem;
-    --font-size-6xl: 3.75rem;
+    --font-size-lg: clamp(1rem, 2vw, 1.125rem);
+    --font-size-xl: clamp(1.125rem, 2.5vw, 1.25rem);
+    --font-size-2xl: clamp(1.25rem, 3vw, 1.5rem);
+    --font-size-3xl: clamp(1.5rem, 4vw, 1.875rem);
+    --font-size-4xl: clamp(1.75rem, 5vw, 2.25rem);
+    --font-size-5xl: clamp(2rem, 6vw, 3rem);
+    --font-size-6xl: clamp(2.5rem, 8vw, 3.75rem);
 
     /* Spacing */
     --spacing-xs: 0.25rem;
@@ -104,6 +104,11 @@ body {
     width: 100vw;
     height: 100vh;
     position: relative;
+    /* Safe Area for modern mobile devices (notch, home bar) */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
 }
 
 /* Screen System */
@@ -798,23 +803,75 @@ body {
    =========================================== */
 
 @media (max-width: 768px) {
+    :root {
+        --spacing-2xl: 2rem;
+        --spacing-3xl: 2.5rem;
+    }
+
+    .screen {
+        padding: var(--spacing-md);
+    }
+
     .title {
         font-size: var(--font-size-3xl);
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .subtitle {
+        font-size: var(--font-size-lg);
+        margin-bottom: var(--spacing-xl);
+        text-align: center;
+    }
+
+    .logo-container {
+        width: 150px;
+        height: 150px;
+        margin-bottom: var(--spacing-lg);
     }
 
     .btn-primary {
-        padding: var(--spacing-md) var(--spacing-xl);
+        padding: var(--spacing-md) var(--spacing-lg);
         font-size: var(--font-size-lg);
+        width: 100%;
+        justify-content: center;
+        max-width: 300px;
     }
 
     .question-header {
         flex-direction: column;
         gap: var(--spacing-sm);
+        margin-bottom: var(--spacing-md);
+    }
+
+    .user-info {
+        width: 100%;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    .question-container {
+        padding: var(--spacing-md);
+        align-items: flex-start;
+        /* Better for reading longer text on mobile */
+        overflow-y: auto;
+        /* Allow scroll if text is too long */
+        max-height: 50vh;
+    }
+
+    .question-text {
+        font-size: clamp(1.25rem, 5vw, 2rem);
     }
 
     .question-footer {
         flex-direction: column;
-        gap: var(--spacing-lg);
+        gap: var(--spacing-md);
+        padding-bottom: var(--spacing-lg);
+    }
+
+    .timer-container {
+        order: -1;
+        /* Move timer to top on mobile sometimes preferred, but let's keep bottom for reachability? No, let's keep standard order but concise */
+        width: 100%;
     }
 }
 
@@ -826,6 +883,78 @@ body {
 
     .title {
         font-size: var(--font-size-6xl);
+    }
+}
+
+/* Mobile Landscape Optimization */
+@media (max-height: 500px) and (orientation: landscape) {
+    .screen {
+        padding: var(--spacing-sm) var(--spacing-xl);
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-content: center;
+    }
+
+    .logo-container {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 0;
+        margin-right: var(--spacing-lg);
+    }
+
+    #start-screen {
+        flex-direction: row;
+    }
+
+    .start-content-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .title {
+        font-size: var(--font-size-2xl);
+        text-align: left;
+    }
+
+    .subtitle {
+        margin-bottom: var(--spacing-md);
+        text-align: left;
+    }
+
+    #question-screen {
+        padding: var(--spacing-sm) var(--spacing-xl);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto 1fr auto;
+        gap: var(--spacing-md);
+    }
+
+    .question-header {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        margin-bottom: 0;
+    }
+
+    .question-container {
+        grid-column: 1 / -1;
+        max-height: none;
+        padding: 0;
+        align-items: center;
+    }
+
+    .question-text {
+        font-size: var(--font-size-xl);
+    }
+
+    .question-footer {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        padding-bottom: 0;
+    }
+
+    .timer-container {
+        max-width: 300px;
     }
 }
 
