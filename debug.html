@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico de Conexión</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #eee;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .status {
+            font-weight: bold;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+
+        pre {
+            background: #f0f0f0;
+            padding: 10px;
+            overflow-x: auto;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔧 Diagnóstico de Conexión - SIN INTERMEDIARIOS</h1>
+
+    <div class="card">
+        <h3>1. Entorno</h3>
+        <p><strong>Navegador URL:</strong> <span id="browser-url">Cargando...</span></p>
+        <p><strong>Protocolo:</strong> <span id="browser-protocol">Cargando...</span></p>
+        <p><strong>Supabase URL:</strong> <code id="supabase-url">Cargando...</code></p>
+    </div>
+
+    <div class="card">
+        <h3>2. Prueba de Conexión (Fetch)</h3>
+        <button onclick="runTest()">Ejecutar Prueba</button>
+        <div id="result-area" style="margin-top: 15px;">
+            <p>Estado: <span id="test-status">Esperando...</span></p>
+            <pre id="test-log">Dale al botón para probar...</pre>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'http://antigravity-supabase-7b4026-72-60-173-156.traefik.me';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NjkwMDkxMjEsImV4cCI6MTg5MzQ1NjAwMCwicm9sZSI6ImFub24iLCJpc3MiOiJzdXBhYmFzZSJ9.QLLj2oEnrtyJHT7mnwP3TZtvkhnEqspaz5VMQDhA1aE';
+
+        document.getElementById('browser-url').textContent = window.location.href;
+        document.getElementById('browser-protocol').textContent = window.location.protocol;
+        document.getElementById('supabase-url').textContent = SUPABASE_URL;
+
+        const log = (msg) => {
+            const el = document.getElementById('test-log');
+            el.textContent += msg + '\n';
+            console.log(msg);
+        };
+
+        async function runTest() {
+            const statusEl = document.getElementById('test-status');
+            const logEl = document.getElementById('test-log');
+            logEl.textContent = 'Iniciando prueba...\n';
+            statusEl.textContent = 'Probando...';
+            statusEl.className = 'status';
+
+            try {
+                // Check Mixed Content risk
+                if (window.location.protocol === 'https:' && SUPABASE_URL.startsWith('http:')) {
+                    log('⚠️ ALERTA: Mixed Content detectado. Estás en HTTPS intentando conecta a HTTP.');
+                }
+
+                log(`Intentando conectar a: ${SUPABASE_URL}/rest/v1/preguntas?select=count&limit=1`);
+
+                const startTime = performance.now();
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/preguntas?select=*&limit=1`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+
+                const endTime = performance.now();
+                log(`Tiempo de respuesta: ${(endTime - startTime).toFixed(0)}ms`);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ ÉXITO: Conexión establecida.');
+                    log(`Datos recibidos: ${JSON.stringify(data, null, 2)}`);
+                    statusEl.textContent = 'CONEXIÓN EXITOSA';
+                    statusEl.className = 'status success';
+
+                    if (data.length === 0) {
+                        log('ℹ️ La tabla responde pero está vacía.');
+                    }
+                } else {
+                    log(`❌ ERROR HTTP: ${response.status} ${response.statusText}`);
+                    statusEl.textContent = 'FALLÓ';
+                    statusEl.className = 'status error';
+                    try {
+                        const errData = await response.json();
+                        log(`Detalle del servidor: ${JSON.stringify(errData, null, 2)}`);
+                    } catch (e) {
+                        log('No se pudo leer el cuerpo del error.');
+                    }
+                }
+
+            } catch (error) {
+                log('❌ ERROR DE RED / JS:');
+                log(`Nombre: ${error.name}`);
+                log(`Mensaje: ${error.message}`);
+
+                if (error.message.includes('Failed to fetch')) {
+                    log('\n📋 DIAGNÓSTICO PROBABLE:');
+                    if (window.location.protocol === 'https:') {
+                        log('1. Bloqueo Mixed Content (HTTPS -> HTTP).');
+                    } else {
+                        log('1. Problema de CORS (El servidor no permite este dominio).');
+                        log('2. Servidor caído o inaccesible.');
+                    }
+                }
+
+                statusEl.textContent = 'ERROR FATAL';
+                statusEl.className = 'status error';
+            }
+        }
+    </script>
+</body>
+
+</html>
