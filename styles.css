@@ -578,9 +578,9 @@ body {
 .timer-bar {
     height: 100%;
     width: 100%;
-    background: linear-gradient(90deg, var(--color-success), var(--color-warning), var(--color-danger));
+    background-color: var(--color-success);
     border-radius: var(--radius-full);
-    transition: width 1s linear;
+    transition: width 1s linear, background-color 0.3s ease;
 }
 
 .timer-bar.warning {

@@ -295,7 +295,16 @@ class SinIntermediariosApp {
     startTimer() {
         this.stopTimer();
         this.state.timeRemaining = this.config.timerDuration;
+
+        // Reset bar immediately without animation
+        this.elements.timerBar.style.transition = 'none';
         this.updateTimerDisplay();
+
+        // Force reflow
+        this.elements.timerBar.offsetHeight;
+
+        // Restore transition
+        this.elements.timerBar.style.transition = 'width 1s linear, background-color 0.3s ease';
 
         this.state.timerInterval = setInterval(() => {
             this.state.timeRemaining--;
@@ -316,22 +325,25 @@ class SinIntermediariosApp {
 
     updateTimerDisplay() {
         const { timeRemaining } = this.state;
-        const { timerDuration, warningThreshold } = this.config;
+        const { timerDuration } = this.config;
 
         // Update value
         this.elements.timerValue.textContent = timeRemaining;
 
-        // Update bar
+        // Update bar width
         const percentage = (timeRemaining / timerDuration) * 100;
         this.elements.timerBar.style.width = `${percentage}%`;
 
-        // Warning state
-        if (timeRemaining <= warningThreshold) {
-            this.elements.timerValue.classList.add('warning');
-            this.elements.timerBar.classList.add('warning');
-        } else {
+        // Update color
+        if (percentage > 50) {
+            this.elements.timerBar.style.backgroundColor = 'var(--color-success)';
             this.elements.timerValue.classList.remove('warning');
-            this.elements.timerBar.classList.remove('warning');
+        } else if (percentage > 20) {
+            this.elements.timerBar.style.backgroundColor = 'var(--topic-economia)'; // Using yellow/orange color
+            this.elements.timerValue.classList.remove('warning');
+        } else {
+            this.elements.timerBar.style.backgroundColor = 'var(--color-danger)';
+            this.elements.timerValue.classList.add('warning');
         }
     }
 
