@@ -45,7 +45,7 @@ async function fetchQuestions(filter = '') {
     }
 }
 
-async function createQuestion(data) {
+async function createQuestion(data, silent = false) {
     try {
         const response = await fetch(`/rest/v1/preguntas`, {
             method: 'POST',
@@ -61,8 +61,10 @@ async function createQuestion(data) {
         if (!response.ok) throw new Error('Error creating question');
         return await response.json();
     } catch (error) {
-        console.error('Error:', error);
-        showToast('Error al crear pregunta', 'error');
+        if (!silent) {
+            console.error('Error:', error);
+            showToast('Error al crear pregunta', 'error');
+        }
         return null;
     }
 }
@@ -529,7 +531,7 @@ async function uploadQuestions() {
     let errors = 0;
 
     for (const item of csvData) {
-        const result = await createQuestion(item);
+        const result = await createQuestion(item, true); // true = silent error
         if (result) {
             success++;
         } else {
