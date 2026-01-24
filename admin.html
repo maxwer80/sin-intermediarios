@@ -39,6 +39,10 @@
                 <span class="stat-value" id="stat-obligatory">0</span>
                 <span class="stat-label">Obligatorias</span>
             </div>
+            <div class="stat-card stat-available">
+                <span class="stat-value" id="stat-available">0</span>
+                <span class="stat-label">Disponibles</span>
+            </div>
         </div>
 
         <!-- Actions Bar -->
@@ -51,6 +55,9 @@
             </button>
             <button class="btn-secondary" onclick="loadQuestions()">
                 🔄 Actualizar
+            </button>
+            <button class="btn-danger" id="btn-batch-delete" onclick="batchDelete()" disabled>
+                🗑️ Borrar Seleccionadas (<span id="selected-count">0</span>)
             </button>
             <div class="filter-group">
                 <label>Filtrar:</label>
@@ -67,6 +74,8 @@
             <table class="questions-table">
                 <thead>
                     <tr>
+                        <th class="col-checkbox"><input type="checkbox" id="select-all"
+                                onchange="toggleSelectAll(this.checked)"></th>
                         <th class="col-obligatory">⭐</th>
                         <th class="col-date">Fecha</th>
                         <th class="col-question">Pregunta</th>
@@ -78,7 +87,7 @@
                 </thead>
                 <tbody id="questions-tbody">
                     <tr>
-                        <td colspan="7" class="loading-cell">Cargando preguntas...</td>
+                        <td colspan="8" class="loading-cell">Cargando preguntas...</td>
                     </tr>
                 </tbody>
             </table>

@@ -10,6 +10,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3Njkw
 
 // State
 let questions = [];
+let selectedIds = new Set(); // Track selected question IDs for batch operations
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -122,14 +123,24 @@ function renderTable() {
     if (questions.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="7" class="loading-cell">No hay preguntas para mostrar</td>
+                <td colspan="8" class="loading-cell">No hay preguntas para mostrar</td>
             </tr>
         `;
         return;
     }
 
+    // Reset selection when re-rendering
+    selectedIds.clear();
+    updateBatchDeleteButton();
+
     tbody.innerHTML = questions.map(q => `
         <tr data-id="${q.id}">
+            <td class="col-checkbox">
+                <input type="checkbox" 
+                       class="row-checkbox" 
+                       data-id="${q.id}"
+                       onchange="toggleRowSelection('${q.id}', this.checked)">
+            </td>
             <td class="col-obligatory">
                 <input type="checkbox" 
                        class="star-checkbox" 
@@ -200,7 +211,70 @@ function updateStats() {
         document.getElementById('stat-approved').textContent = allQuestions.filter(q => q.estado === 'aprobada').length;
         document.getElementById('stat-pending').textContent = allQuestions.filter(q => q.estado === 'pendiente').length;
         document.getElementById('stat-obligatory').textContent = allQuestions.filter(q => q.obligatoria).length;
+        // Disponibles = approved + used (available for gameplay)
+        const available = allQuestions.filter(q => q.estado === 'aprobada' || q.estado === 'usada').length;
+        document.getElementById('stat-available').textContent = available;
     });
+}
+
+// Batch Selection Functions
+function toggleSelectAll(checked) {
+    document.querySelectorAll('.row-checkbox').forEach(cb => {
+        cb.checked = checked;
+        const id = cb.dataset.id;
+        if (checked) {
+            selectedIds.add(id);
+        } else {
+            selectedIds.delete(id);
+        }
+    });
+    updateBatchDeleteButton();
+}
+
+function toggleRowSelection(id, checked) {
+    if (checked) {
+        selectedIds.add(id);
+    } else {
+        selectedIds.delete(id);
+        // Uncheck 'select all' if any row is unchecked
+        document.getElementById('select-all').checked = false;
+    }
+    updateBatchDeleteButton();
+}
+
+function updateBatchDeleteButton() {
+    const btn = document.getElementById('btn-batch-delete');
+    const countEl = document.getElementById('selected-count');
+    const count = selectedIds.size;
+    countEl.textContent = count;
+    btn.disabled = count === 0;
+}
+
+async function batchDelete() {
+    if (selectedIds.size === 0) return;
+
+    const confirmMsg = `¿Estás seguro de que deseas eliminar ${selectedIds.size} pregunta(s)?\n\nEsta acción no se puede deshacer.`;
+    if (!confirm(confirmMsg)) return;
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const id of selectedIds) {
+        const success = await deleteQuestion(id);
+        if (success) {
+            successCount++;
+        } else {
+            errorCount++;
+        }
+    }
+
+    if (successCount > 0) {
+        showToast(`✓ ${successCount} pregunta(s) eliminada(s)${errorCount > 0 ? `, ${errorCount} errores` : ''}`, 'success');
+    } else {
+        showToast('❌ Error al eliminar preguntas', 'error');
+    }
+
+    loadQuestions();
 }
 
 // Modal Functions
