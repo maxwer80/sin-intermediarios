@@ -143,10 +143,10 @@ class SinIntermediariosApp {
             this.state.obligatoryQuestions = supabaseQuestions.filter(q => q.obligatoria === true);
             console.log('🔒 Preguntas obligatorias:', this.state.obligatoryQuestions.length);
         } else {
-            // Fallback to mock data
-            console.log('⚠️ Using mock data (Supabase unavailable)');
-            this.state.questions = mockQuestions.filter(q => q.estado === 'aprobada');
-            this.state.useSupabase = false;
+            // Fallback to empty
+            console.log('⚠️ No questions found in Supabase (and mock data disabled)');
+            this.state.questions = [];
+            this.state.useSupabase = true; // Treat as "using supabase" but empty
         }
     }
 
@@ -170,6 +170,13 @@ class SinIntermediariosApp {
     }
 
     startSession() {
+        const available = this.state.questions.length - this.state.usedQuestionIds.length;
+
+        if (available <= 0) {
+            alert('🚫 NO HAY PREGUNTAS DISPONIBLES\n\nPor favor ve al Panel de Administración y aprueba algunas preguntas para comenzar.');
+            return;
+        }
+
         this.state.currentQuestionNumber = 0;
         this.state.usedQuestionIds = [];
 
