@@ -201,18 +201,21 @@ function formatDate(dateString) {
 
 function updateStats() {
     const total = questions.length;
-    const approved = questions.filter(q => q.estado === 'aprobada').length;
-    const pending = questions.filter(q => q.estado === 'pendiente').length;
+    const approved = questions.filter(q => (q.estado || '').toLowerCase() === 'aprobada').length;
+    const pending = questions.filter(q => (q.estado || '').toLowerCase() === 'pendiente').length;
     const obligatory = questions.filter(q => q.obligatoria).length;
 
     // If we're filtering, fetch all for accurate stats
     fetchQuestions('').then(allQuestions => {
         document.getElementById('stat-total').textContent = allQuestions.length;
-        document.getElementById('stat-approved').textContent = allQuestions.filter(q => q.estado === 'aprobada').length;
-        document.getElementById('stat-pending').textContent = allQuestions.filter(q => q.estado === 'pendiente').length;
+        document.getElementById('stat-approved').textContent = allQuestions.filter(q => (q.estado || '').toLowerCase() === 'aprobada').length;
+        document.getElementById('stat-pending').textContent = allQuestions.filter(q => (q.estado || '').toLowerCase() === 'pendiente').length;
         document.getElementById('stat-obligatory').textContent = allQuestions.filter(q => q.obligatoria).length;
         // Disponibles = approved + used (available for gameplay)
-        const available = allQuestions.filter(q => q.estado === 'aprobada' || q.estado === 'usada').length;
+        const available = allQuestions.filter(q => {
+            const estado = (q.estado || '').toLowerCase();
+            return estado === 'aprobada' || estado === 'usada';
+        }).length;
         document.getElementById('stat-available').textContent = available;
     });
 }
