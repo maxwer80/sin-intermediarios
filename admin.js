@@ -282,6 +282,86 @@ async function batchDelete() {
     loadQuestions();
 }
 
+async function deleteDuplicates() {
+    if (questions.length === 0) return;
+
+    // 1. Group questions by normalized text
+    const groups = {};
+    questions.forEach(q => {
+        const text = q.pregunta.trim().toLowerCase();
+        if (!groups[text]) groups[text] = [];
+        groups[text].push(q);
+    });
+
+    // 2. Identify duplicates
+    const duplicatesToDelete = [];
+    let savedCount = 0;
+
+    Object.values(groups).forEach(group => {
+        if (group.length > 1) {
+            // Sort to find which one to keep:
+            // Priority: Approved/Used > Oldest Created Date
+            group.sort((a, b) => {
+                const aStatus = ['aprobada', 'usada'].includes(a.estado) ? 1 : 0;
+                const bStatus = ['aprobada', 'usada'].includes(b.estado) ? 1 : 0;
+                if (aStatus !== bStatus) return bStatus - aStatus; // Higher status first
+
+                // If status same, prefer older (smaller ID or date)
+                // Assuming ID is reliable proxy for age if date is missing, or use created_at
+                const aDate = new Date(a.created_at || 0).getTime();
+                const bDate = new Date(b.created_at || 0).getTime();
+                return aDate - bDate;
+            });
+
+            // Keep the first one (index 0), delete the rest
+            const toKeep = group[0];
+            const toDelete = group.slice(1);
+
+            toDelete.forEach(q => duplicatesToDelete.push(q.id));
+            savedCount++;
+        }
+    });
+
+    if (duplicatesToDelete.length === 0) {
+        showToast('✅ No se encontraron duplicados', 'success');
+        return;
+    }
+
+    // 3. Confirm deletion
+    const confirmMsg = `⚠️ Se encontraron ${duplicatesToDelete.length} preguntas repetidas (en ${savedCount} grupos).\n\nSe conservará la versión más antigua o la que ya esté aprobada.\n\n¿Deseas ELIMINAR estas copias?`;
+    if (!confirm(confirmMsg)) return;
+
+    // 4. Batch delete
+    const btn = document.getElementById('btn-delete-duplicates');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '🧹 Limpiando...';
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    // Supabase allows deleting multiple IDs with 'in' filter: id=in.(1,2,3)
+    // To be safe and reuse existing logic, we'll loop (or batch if API supported it easily here)
+    // For UI responsiveness we'll stick to loop for now or small batches if supported.
+    // loop is safer with our current deleteQuestion function.
+
+    for (const id of duplicatesToDelete) {
+        const success = await deleteQuestion(id);
+        if (success) successCount++;
+        else errorCount++;
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+
+    if (successCount > 0) {
+        showToast(`♻️ Limpieza completada: ${successCount} borradas${errorCount > 0 ? `, ${errorCount} errores` : ''}`, 'success');
+        loadQuestions();
+    } else {
+        showToast('❌ Error al eliminar duplicados', 'error');
+    }
+}
+
 // Modal Functions
 function showAddModal() {
     document.getElementById('modal-title').textContent = 'Nueva Pregunta';

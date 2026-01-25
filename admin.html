@@ -59,6 +59,10 @@
             <button class="btn-danger" id="btn-batch-delete" onclick="batchDelete()" disabled>
                 🗑️ Borrar Seleccionadas (<span id="selected-count">0</span>)
             </button>
+            <button class="btn-warning" id="btn-delete-duplicates" onclick="deleteDuplicates()"
+                style="background-color: #ff9800; color: white;">
+                🧹 Eliminar Duplicados
+            </button>
             <div class="filter-group">
                 <label>Filtrar:</label>
                 <select id="filter-estado" onchange="loadQuestions()">
