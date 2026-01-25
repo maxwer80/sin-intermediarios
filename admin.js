@@ -58,12 +58,16 @@ async function createQuestion(data, silent = false) {
             body: JSON.stringify(data)
         });
 
-        if (!response.ok) throw new Error('Error creating question');
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Supabase Error:', errorData);
+            throw new Error(errorData.message || errorData.hint || errorData.details || 'Error desconocido del servidor');
+        }
         return await response.json();
     } catch (error) {
         if (!silent) {
             console.error('Error:', error);
-            showToast('Error al crear pregunta', 'error');
+            showToast(`Error: ${error.message}`, 'error');
         }
         return null;
     }
