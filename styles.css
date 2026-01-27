@@ -499,7 +499,15 @@ body {
 }
 
 .social-icon {
-    font-size: var(--font-size-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.social-icon img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
 }
 
 .username {

@@ -5,12 +5,14 @@
 
 const mockQuestions = [];
 
-// Social network icons mapping
+// Social network icons mapping (PNG images)
 const socialIcons = {
-    'X': '𝕏',
-    'Instagram': '📸',
-    'Facebook': '📘',
-    'Otra': '🌐'
+    'X': '<img src="x.png" alt="X" class="social-icon">',
+    'Instagram': '<img src="instagram.png" alt="Instagram" class="social-icon">',
+    'Facebook': '<img src="facebook.png" alt="Facebook" class="social-icon">',
+    'TikTok': '<img src="tiktok.png" alt="TikTok" class="social-icon">',
+    'WhatsApp': '<img src="whatsapp.png" alt="WhatsApp" class="social-icon">',
+    'Otra': '<img src="x.png" alt="Red Social" class="social-icon">'
 };
 
 // Topic to data attribute mapping
