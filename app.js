@@ -298,7 +298,7 @@ class SinIntermediariosApp {
 
     displayQuestion(question) {
         // Update UI elements
-        this.elements.socialIcon.innerHTML = socialIcons[question.red_social] || '<img src="x.png" alt="Red Social" class="social-icon">';
+        this.elements.socialIcon.innerHTML = socialIcons[question.red_social] || '<img src="x.png" alt="Red Social" class="social-icon-img">';
         this.elements.username.textContent = question.usuario_red_social;
         this.elements.topicBadge.textContent = question.tema;
         this.elements.topicBadge.setAttribute('data-topic', topicMapping[question.tema] || 'otros');

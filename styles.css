@@ -504,7 +504,7 @@ body {
     justify-content: center;
 }
 
-.social-icon img {
+.social-icon-img {
     width: 28px;
     height: 28px;
     object-fit: contain;
