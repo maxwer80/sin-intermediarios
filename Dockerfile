@@ -8,6 +8,13 @@ COPY data.js /usr/share/nginx/html/
 COPY styles.css /usr/share/nginx/html/
 COPY "diseñoux.jpg" /usr/share/nginx/html/
 
+# Copiar íconos de redes sociales
+COPY facebook.png /usr/share/nginx/html/
+COPY instagram.png /usr/share/nginx/html/
+COPY tiktok.png /usr/share/nginx/html/
+COPY whatsapp.png /usr/share/nginx/html/
+COPY x.png /usr/share/nginx/html/
+
 # Copiar archivos del panel de administración
 COPY admin.html /usr/share/nginx/html/
 COPY admin.js /usr/share/nginx/html/
