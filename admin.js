@@ -423,13 +423,26 @@ async function saveQuestion(event) {
 
 // Actions
 async function toggleObligatory(id, checked) {
-    // Validar límite de 5 obligatorias
+    // Validar límite de 5 obligatorias - consultar total real de la base de datos
     if (checked) {
-        const currentObligatoryCount = questions.filter(q => q.obligatoria).length;
-        if (currentObligatoryCount >= 5) {
-            alert('⚠️ Ya están seleccionadas las 5 preguntas obligatorias permitidas. No se pueden agregar más.');
-            loadQuestions(); // Reload to reset checkbox
-            return;
+        try {
+            // Consultar cuántas preguntas obligatorias hay en total en la BD
+            const response = await fetch(`/rest/v1/preguntas?select=id&obligatoria=eq.true`, {
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                }
+            });
+            const obligatoryQuestions = await response.json();
+            const currentObligatoryCount = obligatoryQuestions.length;
+
+            if (currentObligatoryCount >= 5) {
+                alert('⚠️ Ya están seleccionadas las 5 preguntas obligatorias permitidas. No se pueden agregar más.');
+                loadQuestions(); // Reload to reset checkbox
+                return;
+            }
+        } catch (error) {
+            console.error('Error checking obligatory count:', error);
         }
     }
 
@@ -437,6 +450,7 @@ async function toggleObligatory(id, checked) {
     if (success) {
         showToast(checked ? '⭐ Marcada como obligatoria' : 'Obligatoria removida', 'success');
         updateStats();
+        loadQuestions(); // Reload to update the local array
     } else {
         loadQuestions(); // Reload to reset checkbox
     }
