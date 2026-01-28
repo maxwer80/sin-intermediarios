@@ -398,13 +398,41 @@ async function saveQuestion(event) {
     event.preventDefault();
 
     const id = document.getElementById('question-id').value;
+    const isObligatoria = document.getElementById('obligatoria').checked;
+
+    // Validar límite de 5 obligatorias si se está marcando como obligatoria
+    if (isObligatoria) {
+        try {
+            const response = await fetch(`/rest/v1/preguntas?select=id&obligatoria=eq.true`, {
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                }
+            });
+            const obligatoryQuestions = await response.json();
+            let currentCount = obligatoryQuestions.length;
+
+            // Si estamos editando una pregunta que YA era obligatoria, no la contamos
+            if (id && obligatoryQuestions.some(q => q.id === id)) {
+                currentCount--;
+            }
+
+            if (currentCount >= 5) {
+                alert('⚠️ Ya están seleccionadas las 5 preguntas obligatorias permitidas. No se pueden agregar más.');
+                return;
+            }
+        } catch (error) {
+            console.error('Error checking obligatory count:', error);
+        }
+    }
+
     const data = {
         pregunta: document.getElementById('pregunta').value,
         usuario_red_social: document.getElementById('usuario').value || '@ciudadano',
         red_social: document.getElementById('red_social').value,
         tema: document.getElementById('tema').value,
         estado: document.getElementById('estado').value,
-        obligatoria: document.getElementById('obligatoria').checked
+        obligatoria: isObligatoria
     };
 
     let success;
