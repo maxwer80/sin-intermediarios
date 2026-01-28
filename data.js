@@ -12,6 +12,7 @@ const socialIcons = {
     'Facebook': '<img src="facebook.png" alt="Facebook" class="social-icon-img">',
     'TikTok': '<img src="tiktok.png" alt="TikTok" class="social-icon-img">',
     'WhatsApp': '<img src="whatsapp.png" alt="WhatsApp" class="social-icon-img">',
+    'IA': '<img src="IA.png" alt="IA" class="social-icon-img">',
     'Otra': '<img src="x.png" alt="Red Social" class="social-icon-img">'
 };
 

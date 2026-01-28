@@ -423,6 +423,16 @@ async function saveQuestion(event) {
 
 // Actions
 async function toggleObligatory(id, checked) {
+    // Validar límite de 5 obligatorias
+    if (checked) {
+        const currentObligatoryCount = questions.filter(q => q.obligatoria).length;
+        if (currentObligatoryCount >= 5) {
+            alert('⚠️ Ya están seleccionadas las 5 preguntas obligatorias permitidas. No se pueden agregar más.');
+            loadQuestions(); // Reload to reset checkbox
+            return;
+        }
+    }
+
     const success = await updateQuestion(id, { obligatoria: checked });
     if (success) {
         showToast(checked ? '⭐ Marcada como obligatoria' : 'Obligatoria removida', 'success');

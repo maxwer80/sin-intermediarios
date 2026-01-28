@@ -191,10 +191,10 @@ class SinIntermediariosApp {
         // 1. Obtener todas las preguntas obligatorias (aprobadas o usadas)
         const allObligatory = this.state.obligatoryQuestions.filter(q => ['aprobada', 'usada'].includes(q.estado));
 
-        // 2. Seleccionar MÁXIMO 4 obligatorias al azar
-        // Si hay más de 4, las mezclamos y tomamos 4. Si hay menos, tomamos todas.
+        // 2. Seleccionar MÁXIMO 5 obligatorias al azar
+        // Si hay más de 5, las mezclamos y tomamos 5. Si hay menos, tomamos todas.
         const shuffledObligatory = this.shuffleArray([...allObligatory]);
-        const finalObligatory = shuffledObligatory.slice(0, 4);
+        const finalObligatory = shuffledObligatory.slice(0, 5);
 
         // 3. Obtener preguntas NO obligatorias (aprobadas o usadas)
         // Ojo: Si una pregunta era obligatoria pero no quedó en las 'finalObligatory', 

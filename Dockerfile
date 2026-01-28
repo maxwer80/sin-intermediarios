@@ -14,6 +14,7 @@ COPY instagram.png /usr/share/nginx/html/
 COPY tiktok.png /usr/share/nginx/html/
 COPY whatsapp.png /usr/share/nginx/html/
 COPY x.png /usr/share/nginx/html/
+COPY IA.png /usr/share/nginx/html/
 
 # Copiar archivos del panel de administración
 COPY admin.html /usr/share/nginx/html/
